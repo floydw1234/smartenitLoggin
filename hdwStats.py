@@ -2,6 +2,17 @@ from pymongo import MongoClient
 import time
 import numpy
 import datetime
+import calendar
+
+#from dateutil.relativedelta import relativedelta
+
+today = datetime.datetime.today()
+print today
+first_day = today.replace(day=1, hour=0, minute=0,second=0, microsecond=0)
+if today.day > 25:
+    first_day = (first_day + relativedelta(months=1))
+
+
 
 client = MongoClient("mongodb://localhost:27017/west")
 db = client.west
@@ -32,42 +43,82 @@ if time.time() % (3600*24*7) + 143958.154 > (3600*24*7):
 else:
 	weekLimit = time.time() % (3600*24*7) + 230400
 
-hourLimit = int(time.time() - hourLimit)
-dayLimit = int(time.time() - dayLimit)
-weekLimit = int(time.time() - weekLimit)
+
+if time.localtime().tm_isdst = 0:
+	hourLimit = int(time.time() - hourLimit)
+	dayLimit = int(time.time() - dayLimit)
+	weekLimit = int(time.time() - weekLimit)
+	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8
+else:
+	hourLimit = int(time.time() - hourLimit) + 3600
+	dayLimit = int(time.time() - dayLimit) + 3600
+	weekLimit = int(time.time() - weekLimit) + 3600
+	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8 + 3600
 
 
-# 1488182400 is the local time at monday 00:00:00
+limits = []
+limits.append(hourLimit)
+limits.append(dayLimit)
+limits.append(weekLimit)
+limits.append(monthLimit)
+Time = []
+Time.append(datetime.datetime.fromtimestamp(int(hourLimit)).strftime('%Y-%m-%d %H:%M:%S'))
+Time.append(datetime.datetime.fromtimestamp(int(dayLimit)).strftime('%Y-%m-%d %H:%M:%S'))
+Time.append(datetime.datetime.fromtimestamp(int(weekLimit)).strftime('%Y-%m-%d %H:%M:%S'))
+Time.append(datetime.datetime.fromtimestamp(int(monthLimit)).strftime('%Y-%m-%d %H:%M:%S'))
+nameArray = []
+nameArray.append("hour")
+nameArray.append("day")
+nameArray.append("week")
+nameArray.append("month")
+print
 
-collOut.remove({"timeStamp": hourLimit})
-collOut.remove({"timeStamp": dayLimit})
-collOut.remove({"timeStamp": weekLimit})
+
+#print hourLimit
+#print dayLimit
+#print weekLimit
 
 
+collOut.remove({"timeStamp": hourLimit, "type": "hourAverage"})
+collOut.remove({"timeStamp": dayLimit, "type": "dayAverage"})
+collOut.remove({"timeStamp": weekLimit, "type": "weekAverage"})
+collOut.remove({"timeStamp": hourLimit, "type": "hourMedian"})
+collOut.remove({"timeStamp": dayLimit, "type": "dayMedian"})
+collOut.remove({"timeStamp": weekLimit, "type": "weekMedian"})
+collOut.remove({"timeStamp": monthLimit, "type": "monthMedian"})
+collOut.remove({"timeStamp": monthLimit, "type": "monthMedian"})
+
+
+
+allValues = []
 
 
 for post in collIn.find( { "timePolled": { "$gt": hourLimit }}):
 	hourValues.append(post['value'])
+allValues.append(hourValues)
 for post in collIn.find( { "timePolled": { "$gt": dayLimit }}):
 	dayValues.append(post['value'])
+allValues.append(dayValues)
 for post in collIn.find( { "timePolled": { "$gt": weekLimit }}):
 	weekValues.append(post['value'])
+allValues.append(weekValues)
+for post in collIn.find( { "timePolled": { "$gt": monthLimit }}):
+	monthValues.append(post['value'])
+allValues.append(weekValues)
+
+
+
+
+for i in range(0,len(allValues)):
+	if not allValues[i]:
+		print "no readings in last " + nameArray[i]
+	else:
+		typeAvg = nameArray[i] + "Average"
+		typeMed = nameArray[i] + "Median"
+		collOut.insert_one({"type": typeAvg, "value": numpy.median(allValues[i]), "timeStamp" : limits[i], "datetime" :Time[i]})
+		collOut.insert_one({"type": typeMed, "value": numpy.average(allValues[i]), "timeStamp" : limits[i] , "datetime" : Time[i]})
+		print "Successfully found avgs"
+
 
 #print numpy.average(hourValues)
 #print numpy.median(hourValues)
-
-hourDateTime = datetime.datetime.fromtimestamp(int(hourLimit)).strftime('%Y-%m-%d %H:%M:%S')
-dayDateTime =  datetime.datetime.fromtimestamp(int(dayLimit)).strftime('%Y-%m-%d %H:%M:%S')
-weekDateTime = datetime.datetime.fromtimestamp(int(weekLimit)).strftime('%Y-%m-%d %H:%M:%S')
-	
-collOut.insert_one({"type": "hrlyaverage", "value": numpy.average(hourValues), "timeStamp" : hourLimit , "datetime" : hourDateTime})
-collOut.insert_one({"type": "dlyaverage", "value": numpy.average(dayValues), "timeStamp" : dayLimit, "datetime" :dayDateTime})
-collOut.insert_one({"type": "wklyaverage", "value": numpy.average(weekValues), "timeStamp" : weekLimit, "datetime" :weekDateTime})
-collOut.insert_one({"type": "hrlyMedian", "value": numpy.median(hourValues), "timeStamp" : hourLimit, "datetime" :hourDateTime})
-collOut.insert_one({"type": "dlyMedian", "value": numpy.median(dayValues), "timeStamp" : dayLimit, "datetime" :dayDateTime})
-collOut.insert_one({"type": "wklyMedian", "value": numpy.median(weekValues), "timeStamp" : weekLimit, "datetime" :weekDateTime})
-
-print "Successfully found avgs"
-
-
-	
