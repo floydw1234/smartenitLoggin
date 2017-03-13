@@ -44,16 +44,16 @@ else:
 	weekLimit = time.time() % (3600*24*7) + 230400
 
 
-if time.localtime().tm_isdst = 0:
-	hourLimit = int(time.time() - hourLimit)
-	dayLimit = int(time.time() - dayLimit)
-	weekLimit = int(time.time() - weekLimit)
-	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8
+if time.localtime().tm_isdst == 0:
+	hourLimit = int(time.time() - hourLimit) - 3600
+	dayLimit = int(time.time() - dayLimit) - 7200
+	weekLimit = int(time.time() - weekLimit) - 3600
+	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8 - 3600
 else:
-	hourLimit = int(time.time() - hourLimit) + 3600
-	dayLimit = int(time.time() - dayLimit) + 3600
-	weekLimit = int(time.time() - weekLimit) + 3600
-	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8 + 3600
+	hourLimit = int(time.time() - hourLimit)
+	dayLimit = int(time.time() - dayLimit) -3600
+	weekLimit = int(time.time() - weekLimit) 
+	monthLimit = calendar.timegm(first_day.utctimetuple()) + 3600 * 8 
 
 
 limits = []
@@ -71,12 +71,14 @@ nameArray.append("hour")
 nameArray.append("day")
 nameArray.append("week")
 nameArray.append("month")
-print
 
 
-#print hourLimit
-#print dayLimit
-#print weekLimit
+
+print hourLimit
+print dayLimit
+print weekLimit
+print monthLimit
+print time.localtime().tm_isdst
 
 
 collOut.remove({"timeStamp": hourLimit, "type": "hourAverage"})
