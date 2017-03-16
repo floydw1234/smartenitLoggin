@@ -73,13 +73,13 @@ nameArray.append("week")
 nameArray.append("month")
 
 
-
+'''
 print hourLimit
 print dayLimit
 print weekLimit
 print monthLimit
 print time.localtime().tm_isdst
-
+'''
 
 collOut.remove({"timeStamp": hourLimit, "type": "hourAverage"})
 collOut.remove({"timeStamp": dayLimit, "type": "dayAverage"})
@@ -87,39 +87,61 @@ collOut.remove({"timeStamp": weekLimit, "type": "weekAverage"})
 collOut.remove({"timeStamp": hourLimit, "type": "hourMedian"})
 collOut.remove({"timeStamp": dayLimit, "type": "dayMedian"})
 collOut.remove({"timeStamp": weekLimit, "type": "weekMedian"})
+collOut.remove({"timeStamp": monthLimit, "type": "monthAverage"})
 collOut.remove({"timeStamp": monthLimit, "type": "monthMedian"})
-collOut.remove({"timeStamp": monthLimit, "type": "monthMedian"})
-
-
-
-allValues = []
-
-
-for post in collIn.find( { "timePolled": { "$gt": hourLimit }}):
-	hourValues.append(post['value'])
-allValues.append(hourValues)
-for post in collIn.find( { "timePolled": { "$gt": dayLimit }}):
-	dayValues.append(post['value'])
-allValues.append(dayValues)
-for post in collIn.find( { "timePolled": { "$gt": weekLimit }}):
-	weekValues.append(post['value'])
-allValues.append(weekValues)
-for post in collIn.find( { "timePolled": { "$gt": monthLimit }}):
-	monthValues.append(post['value'])
-allValues.append(weekValues)
 
 
 
 
-for i in range(0,len(allValues)):
-	if not allValues[i]:
-		print "no readings in last " + nameArray[i]
+ids = []
+for post in collIn.find():
+	ids.append(post['sensorId'])
+idList = list(set(ids))
+idList.append('all')
+
+collOut.insert_one({ "type" : "idList", "ids": idList })
+
+for sensor in idList:
+	allValues = []
+	if sensor == "all":
+		for post in collIn.find( { "timePolled": { "$gt": hourLimit }}):
+			hourValues.append(post['value'])
+		allValues.append(hourValues)
+		for post in collIn.find( { "timePolled": { "$gt": dayLimit }}):
+			dayValues.append(post['value'])
+		allValues.append(dayValues)
+		for post in collIn.find( { "timePolled": { "$gt": weekLimit }}):
+			weekValues.append(post['value'])
+		allValues.append(weekValues)
+		for post in collIn.find( { "timePolled": { "$gt": monthLimit }}):
+			monthValues.append(post['value'])
+		allValues.append(weekValues)
 	else:
-		typeAvg = nameArray[i] + "Average"
-		typeMed = nameArray[i] + "Median"
-		collOut.insert_one({"type": typeAvg, "value": numpy.median(allValues[i]), "timeStamp" : limits[i], "datetime" :Time[i]})
-		collOut.insert_one({"type": typeMed, "value": numpy.average(allValues[i]), "timeStamp" : limits[i] , "datetime" : Time[i]})
-		print "Successfully found avgs"
+		for post in collIn.find( { "timePolled": { "$gt": hourLimit }, "sensorId" : sensor}):
+			hourValues.append(post['value'])
+		allValues.append(hourValues)
+		for post in collIn.find( { "timePolled": { "$gt": dayLimit },"sensorId" : sensor}):
+			dayValues.append(post['value'])
+		allValues.append(dayValues)
+		for post in collIn.find( { "timePolled": { "$gt": weekLimit },"sensorId" : sensor}):
+			weekValues.append(post['value'])
+		allValues.append(weekValues)
+		for post in collIn.find( { "timePolled": { "$gt": monthLimit },"sensorId" : sensor}):
+			monthValues.append(post['value'])
+		allValues.append(weekValues)
+
+	
+	
+	for i in range(0,len(allValues)):
+		if not allValues[i]:
+			print "no readings in last " + nameArray[i]
+		else:
+			
+			typeAvg = nameArray[i] + "Average"
+			typeMed = nameArray[i] + "Median"
+			collOut.insert_one({"type": typeAvg, "value": numpy.median(allValues[i]), "timeStamp" : limits[i], "datetime" :Time[i], "sensorId" : sensor})
+			collOut.insert_one({"type": typeMed, "value": numpy.average(allValues[i]), "timeStamp" : limits[i] , "datetime" : Time[i], "sensorId" : sensor})
+			print "Successfully found avgs"
 
 
 #print numpy.average(hourValues)
