@@ -31,9 +31,9 @@ app.controller('mainController', ['$scope','$http', function($scope, $http){
 	});
 	$scope.SendData = function () {
            // use $.param jQuery function to serialize data from JSON 
-            var data = $.param({
+            var data = {
                 range: $scope.daterange
-            });
+            };
         
             $http.post('/valuesInrange', data)
             .success(function (data, status, headers, config) {

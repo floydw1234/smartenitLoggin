@@ -13,6 +13,13 @@ var PythonShell = require('python-shell');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var bodyParser = require('body-parser');
+var multer = require('multer');
+var upload = multer();
+
+var app = express();
+app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.json());
 
 //one({"type": "hrlyaverage", "value": numpy.average(hourValues), "timeStamp" : hourLimit})
 
@@ -28,7 +35,7 @@ var values = new Schema({
 });
 
 
-var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,12 +48,9 @@ app.set('view engine', 'jade');
 app.get("/", function(req,res){
 	res.sendfile('public/index.html');
 });
-app.post("/valuesInRange", function(req,res){
-	console.log(req);
-	var response = {
-		value: 69
-	};
-	res.send(response);
+app.post("/valuesInRange", upload.array(), function(req,res){
+	console.log(req.body);
+	res.json(req.body);
 });
 
 app.get("/averages", function(req,res){
