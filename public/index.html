@@ -24,15 +24,17 @@ app.controller('mainController', ['$scope','$http', function($scope, $http){
 	$scope.test2 = {};
 	$scope.PostDataResponse = {};
 	$scope.ResponseDetails = {};
+	$scope.idList = {};
+	$scope.currentId = "all";
 
 	$scope.$watch("daterange",function(){
 		$scope.test ++;
 		
 	});
 	$scope.SendData = function () {
-           // use $.param jQuery function to serialize data from JSON 
             var data = {
-                range: $scope.daterange
+                range: $scope.daterange,
+		id: $scope.currentId
             };
         
             $http.post('/valuesInrange', data)
@@ -43,6 +45,18 @@ app.controller('mainController', ['$scope','$http', function($scope, $http){
 		$scope.ResponseDetails = JSON.stringify({data: data});
 	    });
         };
+	$scope.getIds = function(){
+	    $http.get('/idList')
+		.success(function(data){
+			$scope.idList = data.ids;
+	    })
+		.error(function(data,status,headers,config){
+			$scope.ResponseDetails = JSON.stringify({data: data});
+	    });
+	};
+	$scope.selectId = function(id){
+		$scope.currentId = id;
+	}
 }]);
 
 
@@ -50,25 +64,31 @@ app.controller('mainController', ['$scope','$http', function($scope, $http){
 <body ng-app="myApp">
 <div class="container" ng-controller="mainController">
   <h2>Smartenit Sensor Data Display</h2>
-  <p>Pick the range for which you would like to see Power usage.</p>
+  <p>Pick the Sensor and/or range of dates for which you would like to see Power usage.</p>
                                          
+	
+  <div class="dropdown">
+    <button class="button dropdown-toggle" type="button" data-toggle="dropdown" ng-click="getIds()"> Sensor Select: {{ currentId }}
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a ng-repeat="id in idList" ng-click="selectId(id)">{{ id }}</a></li>
+    </ul>
+  </div>
+<input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2017 - 03/17/2017'"/>
+<hr>
 
-
-<input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2015 - 03/17/2015'"/>
+<div>
 <button class="button" ng-click="SendData()"> See graph</button>
-<p>{{ daterange }}</p>
-<p>      {{ test }}</p>
-<p>      {{ test2 }}</p>
-<p>      {{ PostDataResponse }}</p>
-<p>      {{ ResponseDetails }}</p>
-
+</div>
+<hr>
 <script type="text/javascript">
 $(function() {
     $('input[name="daterange"]').daterangepicker();
 });
 </script>
-
-
+<p>{{ PostDataResponse }}</p>
+</div>
+                                     
 
 </body>
 </html>

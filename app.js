@@ -26,12 +26,17 @@ app.use(bodyParser.json());
 var avgS = new Schema({
     type: String,
     value: Number,
-    timeStamp: Number
+    timeStamp: Number,
+    id: Schema.Types.Mixed
 });
 var values = new Schema({
     type: String,
     value: Number,
-    timeStamp: Number
+    timeStamp: Number,
+    id: Schema.Types.Mixed
+});
+var idList = new Schema({
+    id: Schema.Types.Mixed
 });
 
 
@@ -49,27 +54,40 @@ app.get("/", function(req,res){
 	res.sendfile('public/index.html');
 });
 app.post("/valuesInRange", upload.array(), function(req,res){
-	console.log(req.body);
-	res.json(req.body);
-});
-
-app.get("/averages", function(req,res){
+	var ranges = datesToUnix(req.body.range);
 	var array = [];
-	var avg = mongoose.model('average', avgS, 'averages');
-		avg.find().exec(function(err,avgs){
+	var model = mongoose.model('average1', avgS, 'averages');
+		model.find({ "timeStamp": { "$gt": ranges[0] , "$lt": ranges[1]}, "sensorId" : req.body.id}).exec(function(err,avgs){
 			avgs.forEach(function(thing){
 				array.push(thing);	
 			});
 			res.send(array);
 		});
 });
+
+app.get("/averages", function(req,res){
+	var array = [];
+	var model = mongoose.model('average2', avgS, 'averages');
+		model.find().exec(function(err,avgs){
+			avgs.forEach(function(thing){
+				array.push(thing);	
+			});
+			res.send(array);
+		});
+});
+app.get("/idList", function(req,res){
+	var array = [];
+	var model = mongoose.model('average3', idList, 'averages');
+		model.find({type: "idList"}).exec(function(err,ids){
+			res.send(ids[0]);
+		});
+});
 app.get("/allValues", function(req,res){
 	var array = [];
-	var avg = mongoose.model('id', values, 'ids');
-		avg.find().exec(function(err,values){
+	var model = mongoose.model('id', values, 'ids');
+		model.find().exec(function(err,values){
 			values.forEach(function(thing){
 				array.push(thing);
-					
 			});
 			res.send(array);
 		});
@@ -82,6 +100,21 @@ app.get("/doPython", function(req,res){
   		res.send('avgs Calculated');
 	});
 });
+setInterval(function(){
+	PythonShell.run('hdwStats.py', function (err) {
+  		if (err) throw err;
+  		console.log('avgs Calculated');
+	});
+
+},600000);
+
+var datesToUnix = function(date){
+	var dates = date.split("-");
+	dates[0] = dates[0].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+	dates[1] = dates[1].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+	return [Math.floor(Date.parse(dates[0])/1000), Math.floor(Date.parse(dates[1])/1000)];
+};
+
 
 
 
