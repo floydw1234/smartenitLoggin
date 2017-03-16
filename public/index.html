@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smartenit Sensor Data Display</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -10,32 +9,58 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-
-<style>
-.dropdown-submenu {
-    position: relative;
-}
-
-.dropdown-submenu .dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -1px;
-}
-</style>
+<title> HE </title>
 </head>
-<body ng-app="dateapp">
-   
-<div class="container" ng-controller="MainCtrl">
+<script>
+var app = angular.module('myApp',[]);
+
+app.controller('mainController', ['$scope','$http', function($scope, $http){
+	$scope.daterange = '';
+	$scope.test = 1;
+	$scope.test2 = {};
+	$scope.PostDataResponse = {};
+	$scope.ResponseDetails = {};
+
+	$scope.$watch("daterange",function(){
+		$scope.test ++;
+		
+	});
+	$scope.SendData = function () {
+           // use $.param jQuery function to serialize data from JSON 
+            var data = $.param({
+                range: $scope.daterange
+            });
+        
+            $http.post('/valuesInrange', data)
+            .success(function (data, status, headers, config) {
+                $scope.PostDataResponse = data;
+            })
+		.error(function(data,status,headers,config){
+		$scope.ResponseDetails = JSON.stringify({data: data});
+	    });
+        };
+}]);
+
+
+</script>
+<body ng-app="myApp">
+<div class="container" ng-controller="mainController">
   <h2>Smartenit Sensor Data Display</h2>
   <p>Pick the range for which you would like to see Power usage.</p>
                                          
 
 
-<input type="text" name="daterange" value="03/01/2015 - 03/17/2015" ng-model="date.range" />
-
+<input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2015 - 03/17/2015'"/>
+<button class="button" ng-click="SendData()"> See graph</button>
+<p>{{ daterange }}</p>
+<p>      {{ test }}</p>
+<p>      {{ test2 }}</p>
+<p>      {{ PostDataResponse }}</p>
+<p>      {{ ResponseDetails }}</p>
 
 <script type="text/javascript">
 $(function() {
@@ -43,8 +68,7 @@ $(function() {
 });
 </script>
 
-<button  ng-click = "MainController.getAvg()">Click Here to see Graph</button>
-<p>the date you chose was {{ date }}</p>
+
 
 </body>
 </html>

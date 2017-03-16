@@ -42,7 +42,11 @@ app.get("/", function(req,res){
 	res.sendfile('public/index.html');
 });
 app.post("/valuesInRange", function(req,res){
-	res.send(req);
+	console.log(req);
+	var response = {
+		value: 69
+	};
+	res.send(response);
 });
 
 app.get("/averages", function(req,res){
