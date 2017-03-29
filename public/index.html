@@ -1,94 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
- <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
-
-<!-- Include Date Range Picker -->
-<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-<title> HE </title>
-</head>
-<script>
-var app = angular.module('myApp',[]);
-
-app.controller('mainController', ['$scope','$http', function($scope, $http){
-	$scope.daterange = '';
-	$scope.test = 1;
-	$scope.test2 = {};
-	$scope.PostDataResponse = {};
-	$scope.ResponseDetails = {};
-	$scope.idList = {};
-	$scope.currentId = "all";
-
-	$scope.$watch("daterange",function(){
-		$scope.test ++;
-		
-	});
-	$scope.SendData = function () {
-            var data = {
-                range: $scope.daterange,
-		id: $scope.currentId
-            };
-        
-            $http.post('/valuesInrange', data)
-            .success(function (data, status, headers, config) {
-                $scope.PostDataResponse = data;
-            })
-		.error(function(data,status,headers,config){
-		$scope.ResponseDetails = JSON.stringify({data: data});
-	    });
-        };
-	$scope.getIds = function(){
-	    $http.get('/idList')
-		.success(function(data){
-			$scope.idList = data.ids;
-	    })
-		.error(function(data,status,headers,config){
-			$scope.ResponseDetails = JSON.stringify({data: data});
-	    });
-	};
-	$scope.selectId = function(id){
-		$scope.currentId = id;
-	}
-}]);
-
-
-</script>
-<body ng-app="myApp">
-<div class="container" ng-controller="mainController">
-  <h2>Smartenit Sensor Data Display</h2>
-  <p>Pick the Sensor and/or range of dates for which you would like to see Power usage.</p>
-                                         
+   <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+      <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+      <!-- Include Date Range Picker -->
+      <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+      <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+      <title> Smartenit Data Viewer </title>
+   </head>
+	<style>
 	
-  <div class="dropdown">
-    <button class="button dropdown-toggle" type="button" data-toggle="dropdown" ng-click="getIds()"> Sensor Select: {{ currentId }}
-    <span class="caret"></span></button>
-    <ul class="dropdown-menu">
-      <li><a ng-repeat="id in idList" ng-click="selectId(id)">{{ id }}</a></li>
-    </ul>
-  </div>
-<input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2017 - 03/17/2017'"/>
-<hr>
-
-<div>
-<button class="button" ng-click="SendData()"> See graph</button>
-</div>
-<hr>
-<script type="text/javascript">
-$(function() {
-    $('input[name="daterange"]').daterangepicker();
-});
-</script>
-<p>{{ PostDataResponse }}</p>
-</div>
-                                     
-
-</body>
+	</style>
+   <script type="text/javascript"src="js/controller.js"></script>
+   <body ng-app="myApp">
+      <div class="container" ng-controller="mainController">
+         <script type="text/javascript" src="js/makeGraph.js" ></script>
+         <script type="text/javascript" src="js/fusion/fusioncharts.js"></script>
+         <script  src="/js/themes/fusioncharts.theme.fint.js"></script>
+         <h2>Smartenit Sensor Data Display</h2>
+         <p>Pick the Sensor and/or range of dates for which you would like to see Power usage.</p>
+         <div class="dropdown">
+            <button class="button dropdown-toggle" type="button" data-toggle="dropdown" ng-click="getIds()"> Sensor Select: {{ currentId }}
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+               <li><a ng-repeat="id in idList" ng-click="selectId(id)">{{ id }}</a></li>
+            </ul>
+         </div>
+         <input type="text" name="daterange" ng-model="daterange" ng-init="daterange='02/28/2017 - 03/22/2017'"/>
+         <hr>
+         <div>
+            <button class="button" ng-click="SendData()"> See graph</button>
+         </div>
+         <hr>
+         <script type="text/javascript">
+            $(function() {
+                $('input[name="daterange"]').daterangepicker();
+            });
+         </script>
+        <p>{{ test1 }}</p>
+	<p>{{ test2 }}</p>
+	<p>{{ test3 }}</p>
+	 <center>
+         <div style="both" ng-repeat="chartType in unique" id="{{ chartType }}"> 
+		<p>{{ chartType }} chart loading here!</p>
+	</div>
+	</center>
+      </div>
+   </body>
 </html>
+
+

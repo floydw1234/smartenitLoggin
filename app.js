@@ -20,6 +20,7 @@ var upload = multer();
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 //one({"type": "hrlyaverage", "value": numpy.average(hourValues), "timeStamp" : hourLimit})
 
@@ -53,6 +54,7 @@ app.set('view engine', 'jade');
 app.get("/", function(req,res){
 	res.sendfile('public/index.html');
 });
+
 app.post("/valuesInRange", upload.array(), function(req,res){
 	var ranges = datesToUnix(req.body.range);
 	var array = [];
@@ -95,13 +97,13 @@ app.get("/allValues", function(req,res){
 
 
 app.get("/doPython", function(req,res){
-	PythonShell.run('hdwStats.py', function (err) {
+	PythonShell.run('py/hdwStats.py', function (err) {
   		if (err) throw err;
   		res.send('avgs Calculated');
 	});
 });
 setInterval(function(){
-	PythonShell.run('hdwStats.py', function (err) {
+	PythonShell.run('py/hdwStats.py', function (err) {
   		if (err) throw err;
   		console.log('avgs Calculated');
 	});
