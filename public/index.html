@@ -9,6 +9,8 @@
       <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
       <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript" src="js/googleCharts.js"></script>
       <!-- Include Date Range Picker -->
       <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
       <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
@@ -20,7 +22,6 @@
    <script type="text/javascript"src="js/controller.js"></script>
    <body ng-app="myApp">
       <div class="container" ng-controller="mainController">
-         <script type="text/javascript" src="js/makeGraph.js" ></script>
          <script type="text/javascript" src="js/fusion/fusioncharts.js"></script>
          <script  src="/js/themes/fusioncharts.theme.fint.js"></script>
          <h2>Smartenit Sensor Data Display</h2>
@@ -32,7 +33,7 @@
                <li><a ng-repeat="id in idList" ng-click="selectId(id)">{{ id }}</a></li>
             </ul>
          </div>
-         <input type="text" name="daterange" ng-model="daterange" ng-init="daterange='02/28/2017 - 03/22/2017'"/>
+         <input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2017 - 04/22/2017'"/>
          <hr>
          <div>
             <button class="button" ng-click="SendData()"> See graph</button>
@@ -43,14 +44,17 @@
                 $('input[name="daterange"]').daterangepicker();
             });
          </script>
+<!--
         <p>{{ test1 }}</p>
 	<p>{{ test2 }}</p>
-	<p>{{ test3 }}</p>
+	<p>{{ PostDataResponse }}</p>
+-->
 	 <center>
-         <div style="both" ng-repeat="chartType in unique" id="{{ chartType }}"> 
+         <div style="width: 900px; height: 500px" ng-repeat="chartType in unique" id="{{ chartType }}"> 
 		<p>{{ chartType }} chart loading here!</p>
 	</div>
 	</center>
+	
       </div>
    </body>
 </html>
