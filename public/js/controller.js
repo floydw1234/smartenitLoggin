@@ -26,24 +26,25 @@ app.controller('mainController', ['$scope','$http','$q', function($scope, $http,
 			}
 		return deferred.promise;
 	};
-	$scope.buildCharts = function(types){
+	$scope.buildCharts = function(){
 		
 		var promises = [];
 		
 		$scope.unique.forEach(function(type){
 					var deferred = $q.defer();
 					$scope.prepareData(type);
-					var option =
+					var option =[
 					{
-			  			title: type,
-			  			curveType: 'function',
+			  			title: type+" kWh Demand",
+			  			//curveType: 'function',
 			  			legend: { position: 'bottom' }
-					};
+					},type];
 					deferred.resolve(option);
 					promises.push(deferred.promise);
 		});
 		return $q.all(promises);
 	};
+
 	$scope.prepareData = function(type){
 		var deferred = $q.defer();
 		var promises = [];
@@ -52,7 +53,7 @@ app.controller('mainController', ['$scope','$http','$q', function($scope, $http,
 		$scope.PostDataResponse.forEach(function(response){
 			var deferred = $q.defer();
 			if ( type == response.type){
-				deferred.resolve([new Date(response.timeStamp*1000),response.value]);
+				deferred.resolve([new Date(response.timeStamp*1000),response.value*100000]);
 				promises.push(deferred.promise);
 			}
 		});
@@ -82,6 +83,9 @@ app.controller('mainController', ['$scope','$http','$q', function($scope, $http,
 			.error(function(data,status,headers,config){
 			$scope.ResponseDetails = JSON.stringify({data: data});
 		});
+		$scope.unique = [];//this is to clear the old charts for a new query
+		$scope.PostDataResponse = {}; // this is to clear data from other query
+		$scope.data = [];
 		return deferred.promise;
 	};
 
@@ -91,60 +95,22 @@ app.controller('mainController', ['$scope','$http','$q', function($scope, $http,
 
 			return $scope.buildList(post);
 		}).then(function(types){
-			//$scope.test1 = types;
 			return $scope.buildCharts(types);
 		}).then(function(options){
 
-				$scope.test1 = {
-			  			title: $scope.unique[3],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					};
+				$scope.test1 = options;
 				$scope.test2 = [['timeStamp', $scope.unique[1]]].concat($scope.data[1]);
 				$scope.test3 = String($scope.unique[1]);
-
-				drawChart({
-			  			title: $scope.unique[0],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[0]]].concat($scope.data[0]),String($scope.unique[0]));
-				
-				drawChart({
-			  			title: $scope.unique[1],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[1]]].concat($scope.data[1]),$scope.unique[1]);
-				drawChart({
-			  			title: $scope.unique[2],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[2]]].concat($scope.data[2]),$scope.unique[2]);
-				drawChart({
-			  			title: $scope.unique[3],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[3]]].concat($scope.data[3]),$scope.unique[3]);
-				drawChart({
-			  			title: $scope.unique[4],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[4]]].concat($scope.data[4]),$scope.unique[4]);
-				drawChart({
-			  			title: $scope.unique[5],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[5]]].concat($scope.data[5]),$scope.unique[5]);
-				drawChart({
-			  			title: $scope.unique[6],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[6]]].concat($scope.data[6]),$scope.unique[6]);
-				drawChart({
-			  			title: $scope.unique[7],
-			  			curveType: 'function',
-			  			legend: { position: 'bottom' }
-					},[['timeStamp', $scope.unique[7]]].concat($scope.data[7]),$scope.unique[7]);
-						
+			setTimeout(function(){
+				drawChart(options[0][0],[['timeStamp', $scope.unique[0]]].concat($scope.data[0]),options[0][1]);
+				drawChart(options[1][0],[['timeStamp', $scope.unique[1]]].concat($scope.data[1]),options[1][1]);
+				drawChart(options[2][0],[['timeStamp', $scope.unique[2]]].concat($scope.data[2]),options[2][1]);
+				drawChart(options[3][0],[['timeStamp', $scope.unique[3]]].concat($scope.data[3]),options[3][1]);
+				drawChart(options[4][0],[['timeStamp', $scope.unique[4]]].concat($scope.data[4]),options[4][1]);
+				drawChart(options[5][0],[['timeStamp', $scope.unique[5]]].concat($scope.data[5]),options[5][1]);
+				drawChart(options[6][0],[['timeStamp', $scope.unique[6]]].concat($scope.data[6]),options[6][1]);
+				drawChart(options[7][0],[['timeStamp', $scope.unique[7]]].concat($scope.data[7]),options[7][1]);
+			},600);
 			
 		});		
         };

@@ -1,6 +1,7 @@
 google.charts.load('current', {'packages':['corechart']});
    //   google.charts.setOnLoadCallback(drawChart);
 	function drawChart(options, dataPoints,location) {
+		var chart = new google.visualization.LineChart(document.getElementById(String(location)));
         	var data = google.visualization.arrayToDataTable(dataPoints);
 
         	var chart = new google.visualization.LineChart(document.getElementById(String(location)));

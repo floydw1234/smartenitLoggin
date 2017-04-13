@@ -33,10 +33,12 @@
                <li><a ng-repeat="id in idList" ng-click="selectId(id)">{{ id }}</a></li>
             </ul>
          </div>
-         <input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2017 - 04/22/2017'"/>
+	<div align='center'>
+         <input type="text" name="daterange" ng-model="daterange" ng-init="daterange='03/02/2017 - 04/12/2017'"/>
+	</div>
          <hr>
          <div>
-            <button class="button" ng-click="SendData()"> See graph</button>
+            <button class="button" ng-click="SendData()"> See graphs</button>
          </div>
          <hr>
          <script type="text/javascript">
@@ -46,6 +48,7 @@
          </script>
 <!--
         <p>{{ test1 }}</p>
+
 	<p>{{ test2 }}</p>
 	<p>{{ PostDataResponse }}</p>
 -->
